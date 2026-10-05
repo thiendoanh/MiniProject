@@ -17,7 +17,6 @@ class EditProfileActivity : AppCompatActivity() {
         binding = ActivityEditProfileBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // 1. Nhận dữ liệu sinh viên cũ gửi sang từ MainActivity
         originalStudent = intent.getSerializableExtra("STUDENT_DATA") as? Student
         originalStudent?.let {
             binding.edtName.setText(it.name)
@@ -25,7 +24,6 @@ class EditProfileActivity : AppCompatActivity() {
             binding.edtGpa.setText(it.gpa.toString())
         }
 
-        // 2. Nút Lưu thông tin
         binding.btnSave.setOnClickListener {
             val name = binding.edtName.text.toString().trim()
             val className = binding.edtClass.text.toString().trim()
@@ -42,7 +40,6 @@ class EditProfileActivity : AppCompatActivity() {
                 gpa = gpa
             ) ?: return@setOnClickListener
 
-            // Đóng gói dữ liệu trả về
             val resultIntent = Intent().apply {
                 putExtra("UPDATED_STUDENT", updatedStudent)
             }
@@ -51,7 +48,6 @@ class EditProfileActivity : AppCompatActivity() {
             finish()
         }
 
-        // 3. Nút Hủy
         binding.btnCancel.setOnClickListener {
             setResult(Activity.RESULT_CANCELED)
             finish()

@@ -4,6 +4,7 @@ import android.Manifest
 import android.app.Activity
 import android.content.ActivityNotFoundException
 import android.content.Intent
+import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Bundle
 import android.widget.Toast
@@ -15,10 +16,10 @@ import com.ute.lab3_twoscreens.databinding.ActivityMainBinding
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
-    private var currentStudent = Student("2415053122206", "Lâm Hưng Thiên Doanh", "24T2", "2415053122206@sv.    ute.udn.vn", 3.80)
+    private var currentStudent = Student("2415053122206", "Nguyễn Văn An", "22CT1", "an@ute.udn.vn", 3.80)
 
-    // 1. Contract 1: Nhận dữ liệu phản hồi từ EditProfileActivity
-    private val editLauncher: ActivityResultLauncher<Intent> = registerForActivityResult(
+    // Contract 1: Chỉnh sửa hồ sơ
+    private val editLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
@@ -31,24 +32,37 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    // 2. Contract 2: Mở Photo Picker chọn ảnh từ Gallery
-    private val galleryLauncher: ActivityResultLauncher<String> = registerForActivityResult(
+    // Contract 2: Chọn ảnh từ Gallery
+    private val galleryLauncher = registerForActivityResult(
         ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
         uri?.let {
             binding.imgAvatar.setImageURI(it)
-            toast("Đã thay đổi ảnh đại diện!")
+            toast("Đã thay đổi ảnh đại diện từ Gallery!")
         }
     }
 
-    // 3. Contract 3: Xin quyền Camera thời gian chạy (Runtime Permission)
-    private val cameraLauncher: ActivityResultLauncher<String> = registerForActivityResult(
-        ActivityResultContracts.RequestPermission()
-    ) { isGranted: Boolean ->
-        if (isGranted) {
-            toast("Đã cấp quyền Camera! Sẵn sàng chụp ảnh.")
+    // BT Mở Rộng 3: Chụp ảnh trực tiếp từ Camera
+    private val takePhotoLauncher = registerForActivityResult(
+        ActivityResultContracts.TakePicturePreview()
+    ) { bitmap: Bitmap? ->
+        bitmap?.let {
+            binding.imgAvatar.setImageBitmap(it)
+            toast("Đã gán ảnh chụp trực tiếp từ Camera!")
+        }
+    }
+
+    // BT Mở Rộng 2: Xin nhiều quyền cùng lúc
+    private val multiplePermissionsLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) { permissionsMap: Map<String, Boolean> ->
+        val cameraGranted = permissionsMap[Manifest.permission.CAMERA] ?: false
+        val audioGranted = permissionsMap[Manifest.permission.RECORD_AUDIO] ?: false
+
+        if (cameraGranted && audioGranted) {
+            toast("Đã được cấp toàn bộ quyền (Camera & Audio)!")
         } else {
-            toast("Bạn đã từ chối quyền Camera!")
+            toast("Camera: $cameraGranted | Audio: $audioGranted")
         }
     }
 
@@ -59,7 +73,7 @@ class MainActivity : AppCompatActivity() {
 
         bindStudentData(currentStudent)
 
-        // Nút 1: Mở màn hình Sửa hồ sơ
+        // Nút Sửa hồ sơ
         binding.btnEditProfile.setOnClickListener {
             val intent = Intent(this, EditProfileActivity::class.java).apply {
                 putExtra("STUDENT_DATA", currentStudent)
@@ -67,19 +81,34 @@ class MainActivity : AppCompatActivity() {
             editLauncher.launch(intent)
         }
 
-        // Nút 2: Mở thư viện chọn ảnh
+        // Nút Chọn ảnh Gallery
         binding.btnChangeAvatar.setOnClickListener {
             galleryLauncher.launch("image/*")
         }
 
-        // Nút 3: Gọi điện thoại
+        // Nút Gọi điện
         binding.btnCallHotline.setOnClickListener {
             makePhoneCall("0905123456")
         }
 
-        // Nút 4: Yêu cầu quyền Camera
-        binding.btnRequestCamera.setOnClickListener {
-            cameraLauncher.launch(Manifest.permission.CAMERA)
+        // BT Mở Rộng 1: Google Maps
+        binding.btnOpenMap.setOnClickListener {
+            openGoogleMapsLocation()
+        }
+
+        // BT Mở Rộng 3: Chụp ảnh
+        binding.btnTakePhoto.setOnClickListener {
+            takePhotoLauncher.launch(null)
+        }
+
+        // BT Mở Rộng 2: Xin nhiều quyền
+        binding.btnRequestMultiplePerms.setOnClickListener {
+            multiplePermissionsLauncher.launch(
+                arrayOf(
+                    Manifest.permission.CAMERA,
+                    Manifest.permission.RECORD_AUDIO
+                )
+            )
         }
     }
 
@@ -97,6 +126,23 @@ class MainActivity : AppCompatActivity() {
             startActivity(Intent.createChooser(dialIntent, "Chọn ứng dụng gọi điện"))
         } catch (e: ActivityNotFoundException) {
             toast("Không tìm thấy ứng dụng gọi điện!")
+        }
+    }
+
+    private fun openGoogleMapsLocation() {
+        val geoUri = Uri.parse("geo:16.0768,108.2141?q=Đại+học+Sư+phạm+Kỹ+thuật+Đà+Nẵng")
+        val mapIntent = Intent(Intent.ACTION_VIEW, geoUri).apply {
+            setPackage("com.google.android.apps.maps")
+        }
+        try {
+            startActivity(mapIntent)
+        } catch (e: ActivityNotFoundException) {
+            val fallbackIntent = Intent(Intent.ACTION_VIEW, geoUri)
+            try {
+                startActivity(fallbackIntent)
+            } catch (ex: ActivityNotFoundException) {
+                toast("Không tìm thấy ứng dụng Bản đồ trên thiết bị!")
+            }
         }
     }
 
