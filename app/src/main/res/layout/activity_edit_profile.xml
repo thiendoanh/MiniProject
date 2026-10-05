@@ -34,22 +34,22 @@
         android:id="@+id/edtGpa"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="24dp"
         android:hint="Điểm GPA (0.0 - 4.0)"
-        android:inputType="numberDecimal"
-        android:layout_marginBottom="24dp" />
+        android:inputType="numberDecimal" />
 
     <Button
         android:id="@+id/btnSave"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Lưu và Phản Hồi"
-        android:layout_marginBottom="8dp" />
+        android:layout_marginBottom="8dp"
+        android:text="Lưu và Phản Hồi" />
 
     <Button
         android:id="@+id/btnCancel"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Hủy Bỏ"
-        android:backgroundTint="#757575" />
+        android:layout_height="55dp"
+        android:backgroundTint="#757575"
+        android:text="Hủy Bỏ" />
 
 </LinearLayout>

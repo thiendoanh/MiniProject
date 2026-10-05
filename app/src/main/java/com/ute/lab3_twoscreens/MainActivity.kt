@@ -15,7 +15,7 @@ import com.ute.lab3_twoscreens.databinding.ActivityMainBinding
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
-    private var currentStudent = Student("2415053122206", "Nguyễn Văn An", "22CT1", "an@ute.udn.vn", 3.80)
+    private var currentStudent = Student("2415053122206", "Lâm Hưng Thiên Doanh", "24T2", "2415053122206@sv.    ute.udn.vn", 3.80)
 
     // 1. Contract 1: Nhận dữ liệu phản hồi từ EditProfileActivity
     private val editLauncher: ActivityResultLauncher<Intent> = registerForActivityResult(
